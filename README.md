@@ -32,12 +32,19 @@ All workflows are automated via the root `Makefile`. Run the following three com
    - [load_data.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/load_data.py): Initializes the SQLite database and loads `cell-count.csv`.
    - [run_analysis.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/run_analysis.py): Performs cell frequency calculations, statistical significance testing, and cohort querying, exporting output tables, plots, and reports to the `output/` folder.
 
-3. **Start Dashboard**:
-   ```bash
-   make dashboard
-   ```
-   This launches the local Streamlit server. Once running, you can open the dashboard in your web browser at:
-   - **Local URL**: `http://localhost:8501`
+ 3. **Run Pipeline Verification (Tests)**:
+    ```bash
+    make test
+    ```
+    This runs the automated validation script `verify_outputs.py` to check the database table counts, row counts, csv sizes, and report averages. It also runs automatically at the end of `make pipeline`.
+
+ 4. **Start Dashboard**:
+    ```bash
+    make dashboard
+    ```
+    This launches the local Streamlit server. Once running, you can open the dashboard in your web browser at:
+    - **Local URL**: `http://localhost:8501`
+    - **Live Deployed Dashboard**: [https://teiko-loblaw.streamlit.app/](https://teiko-loblaw.streamlit.app/)
 
 ---
 
@@ -47,6 +54,7 @@ The repository is structured as a modular data analysis pipeline:
 
 - [load_data.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/load_data.py): Dedicated data ingestion script. Implemented using standard libraries to ensure zero external dependencies and fast bulk transactions.
 - [run_analysis.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/run_analysis.py): Orchestrates the scientific and statistical analysis. Queries the SQLite database and writes tables, reports, and plots.
+- [verify_outputs.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/verify_outputs.py): Automated test suite checking table row counts, csv shapes, reports existence, boxplots drawing, and average calculations.
 - [app.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/app.py): The interactive Streamlit dashboard. Delivers a highly polished, responsive dark-themed visual experience.
 - [requirements.txt](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/requirements.txt): Declares Python package dependencies.
 - [Makefile](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/Makefile): Automated script defining pipeline and server triggers for grading validation.
