@@ -5,8 +5,33 @@ import numpy as np
 import plotly.express as px
 from scipy import stats
 import os
+import sys
 
 DB_PATH = "teiko_clinical.db"
+CSV_PATH = "cell-count.csv"
+
+# ---------------------------------------------------------------------------
+# Auto-bootstrap: build the DB from CSV if it doesn't exist yet.
+# This runs automatically on Streamlit Cloud (where load_data.py is never
+# called manually), and is skipped on every subsequent page interaction
+# thanks to st.cache_resource.
+# ---------------------------------------------------------------------------
+@st.cache_resource(show_spinner=False)
+def ensure_database():
+    """Create and populate the SQLite DB from CSV if the DB file is missing."""
+    if os.path.exists(DB_PATH):
+        return  # already built
+    if not os.path.exists(CSV_PATH):
+        st.error(f"Source data file '{CSV_PATH}' not found. Cannot initialise database.")
+        st.stop()
+    # Import load_data functions from the same directory
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import load_data as ld
+    with st.spinner("First-run setup: building database from cell-count.csv… (this takes ~10 s)"):
+        ld.init_db()
+        ld.load_data()
+
+ensure_database()
 
 # Page Configuration
 st.set_page_config(
@@ -292,9 +317,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Check DB
+# Sanity guard — should never fire after ensure_database() above
 if not os.path.exists(DB_PATH):
-    st.error("Database file 'teiko_clinical.db' not found. Please run the data ingestion pipeline first.")
+    st.error("Database could not be initialised. Check that cell-count.csv is present in the repository root.")
     st.stop()
 
 conn = get_db_connection()
