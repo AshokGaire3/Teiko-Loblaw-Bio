@@ -21,73 +21,264 @@ def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     return conn
 
-# Custom CSS for Premium Design (Harmonious colors, modern fonts, glassmorphism card styling)
+# Helper to apply strict Black & White high-contrast styling to Plotly figures (Swiss Grid/Nothing OS style)
+def apply_bw_theme(fig):
+    fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="#1A1A1A",
+        plot_bgcolor="#1A1A1A",
+        font=dict(family="Space Mono", color="#A0A0A0")
+    )
+    # Ensure title text is an empty string if not set to prevent "undefined" rendering in Plotly.js
+    if not hasattr(fig.layout, 'title') or not fig.layout.title or not fig.layout.title.text:
+        fig.update_layout(title=dict(text="", font=dict(family="Inter", color="#FFFFFF")))
+    else:
+        fig.update_layout(title_font=dict(family="Inter", color="#FFFFFF"))
+
+    # Update Cartesian axes if present
+    fig.update_xaxes(
+        gridcolor="#222222",
+        linecolor="#333333",
+        linewidth=1,
+        tickfont=dict(color="#A0A0A0", family="Space Mono"),
+        title_font=dict(color="#FFFFFF", family="Inter")
+    )
+    fig.update_yaxes(
+        gridcolor="#222222",
+        linecolor="#333333",
+        linewidth=1,
+        tickfont=dict(color="#A0A0A0", family="Space Mono"),
+        title_font=dict(color="#FFFFFF", family="Inter")
+    )
+
+# Custom CSS for Futuristic Nothing OS / Swiss Grid Monochrome Aesthetic
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
+        background-color: #000000 !important;
+        color: #A0A0A0 !important;
     }
     
-    h1, h2, h3, h4, .metric-label {
-        font-family: 'Outfit', sans-serif;
-        font-weight: 600;
+    /* Monospace elements for Numbers & Code aesthetics */
+    .mono-text, .stat-number, div[data-baseweb="select"] span, input, button {
+        font-family: 'Space Mono', monospace !important;
     }
     
-    /* Sleek gradient background for sidebar */
+    h1, h2, h3, h4, h5, h6, .metric-label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #FFFFFF !important;
+    }
+    
+    /* Pure Black Base Page Background */
+    [data-testid="stAppViewContainer"] {
+        background-color: #000000 !important;
+        background-image: none !important;
+    }
+    
+    /* Swiss Grid Sidebar */
     [data-testid="stSidebar"] {
-        background-image: linear-gradient(180deg, #1E1B4B 0%, #0F172A 100%);
-        color: #F8FAFC;
+        background-color: #000000 !important;
+        background-image: none !important;
+        border-right: 1px solid #222222 !important;
+        color: #A0A0A0 !important;
+    }
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+        color: #FFFFFF !important;
     }
     
-    /* Custom CSS Cards for Glassmorphism UI with Micro-Animations */
+    /* Custom Scrollbars - Razor thin */
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #000000;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #222222;
+        border-radius: 0px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #333333;
+    }
+    
+    /* Swiss Grid Floating Top Navigation (Monochrome Pills, Sharp Corners) */
+    div[data-testid="stTabBar"] {
+        background: #1A1A1A !important;
+        border: 1px solid #222222 !important;
+        border-radius: 0px !important;
+        padding: 4px !important;
+        margin-bottom: 30px !important;
+        display: flex !important;
+        gap: 2px !important;
+        box-shadow: none !important;
+    }
+    
+    /* Hide default Streamlit tab active underline line */
+    div[data-testid="stTabBar"] > div {
+        height: 0px !important;
+        background-color: transparent !important;
+    }
+    
+    /* Individual Navigation Pill Buttons */
+    button[data-baseweb="tab"] {
+        background-color: transparent !important;
+        border: none !important;
+        color: #A0A0A0 !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        font-family: 'Space Mono', monospace !important;
+        padding: 6px 14px !important;
+        border-radius: 0px !important;
+        transition: all 0.1s ease !important;
+        margin-right: 2px !important;
+    }
+    
+    button[data-baseweb="tab"]:hover {
+        color: #FFFFFF !important;
+        background-color: #222222 !important;
+    }
+    
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #000000 !important;
+        background: #FFFFFF !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Swiss Grid Modular Card Component */
     .glass-card {
-        background: rgba(30, 41, 59, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 20px;
-        backdrop-filter: blur(16px);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        background: #1A1A1A !important;
+        border: 1px solid #222222 !important;
+        border-radius: 0px !important;
+        padding: 24px !important;
+        margin-bottom: 20px !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        transition: border-color 0.15s ease-in-out !important;
     }
     
     .glass-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 40px rgba(99, 102, 241, 0.25);
-        border-color: rgba(99, 102, 241, 0.4);
+        transform: none !important;
+        border-color: #333333 !important;
     }
     
     .stat-number {
-        font-family: 'Outfit', sans-serif;
-        font-size: 38px;
-        font-weight: 800;
-        color: #818CF8;
-        margin-top: 5px;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 30px;
+        font-weight: 700;
+        color: #FFFFFF !important;
+        margin-top: 6px;
+        line-height: 1.0;
+        letter-spacing: -0.03em;
     }
     
     .stat-label {
-        font-size: 13px;
-        color: #94A3B8;
-        font-weight: 600;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 10px;
+        color: #A0A0A0 !important;
+        font-weight: 400;
         letter-spacing: 0.08em;
+        text-transform: uppercase;
     }
     
     /* Highlight banner */
     .highlight-banner {
-        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #C084FC 100%);
-        border-radius: 16px;
-        padding: 24px;
-        color: white;
+        background: #1A1A1A !important;
+        border: 1px solid #222222 !important;
+        border-radius: 0px !important;
+        padding: 24px 28px !important;
+        color: #FFFFFF !important;
         margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
     }
     
-    /* Metric Card Custom Color-left borders */
-    .border-left-purple { border-left: 5px solid #A855F7; }
-    .border-left-orange { border-left: 5px solid #F97316; }
-    .border-left-green { border-left: 5px solid #10B981; }
+    /* Left Border indicators - replaced with clean white grid lines */
+    .border-left-purple { border-left: 2px solid #FFFFFF !important; }
+    .border-left-green { border-left: 2px solid #FFFFFF !important; }
+    .border-left-orange { border-left: 2px solid #FFFFFF !important; }
+    
+    /* Monochromatic Input Controls with Sharp Corners */
+    div[data-baseweb="select"] > div {
+        background-color: #1A1A1A !important;
+        border: 1px solid #222222 !important;
+        border-radius: 0px !important;
+        color: #FFFFFF !important;
+    }
+    div[data-baseweb="select"]:hover {
+        border-color: #333333 !important;
+    }
+    
+    /* Styled Text Input */
+    div[data-testid="stTextInput"] input {
+        background-color: #1A1A1A !important;
+        border: 1px solid #222222 !important;
+        border-radius: 0px !important;
+        color: #FFFFFF !important;
+        padding: 8px 12px !important;
+    }
+    div[data-testid="stTextInput"] input:focus {
+        border-color: #FFFFFF !important;
+        box-shadow: none !important;
+    }
+    
+    /* Styled Bordered Containers (e.g., st.container(border=True)) */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #1A1A1A !important;
+        border: 1px solid #222222 !important;
+        border-radius: 0px !important;
+        padding: 20px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Swiss Grid Notification Box */
+    div[data-testid="stNotification"] {
+        background-color: #1A1A1A !important;
+        border: 1px solid #222222 !important;
+        color: #A0A0A0 !important;
+        border-radius: 0px !important;
+    }
+    
+    /* Solid White Button with Sharp Corners */
+    div.stDownloadButton > button {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        border: 1px solid #FFFFFF !important;
+        padding: 6px 16px !important;
+        border-radius: 0px !important;
+        font-weight: 700 !important;
+        font-family: 'Space Mono', monospace !important;
+        box-shadow: none !important;
+        transition: all 0.1s ease-in-out !important;
+    }
+    div.stDownloadButton > button:hover {
+        background: #000000 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #FFFFFF !important;
+    }
+    
+    /* Streamlit Tables & Dataframe custom rules */
+    div[data-testid="stDataFrame"] {
+        border: 1px solid #222222 !important;
+    }
+    
+    /* Muted body texts */
+    div[data-testid="stMarkdownContainer"] p {
+        color: #A0A0A0 !important;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    /* Monospace code styling */
+    code {
+        font-family: 'Space Mono', monospace !important;
+        color: #FFFFFF !important;
+        background-color: #222222 !important;
+        padding: 2px 4px !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -141,27 +332,52 @@ tab_overview, tab_part2, tab_part3, tab_part4 = st.tabs([
 with tab_overview:
     st.markdown("## Clinical Trial Overview")
     
-    # Visual Cards row
+    # Visual Cards row with inline flex layouts and strict B&W SVG icons
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown(f"""
-        <div class="glass-card border-left-purple">
-            <div class="stat-label">TOTAL PROJECTS IN STUDY</div>
-            <div class="stat-number">{total_projects} Projects</div>
+        <div class="glass-card border-left-purple" style="display: flex; justify-content: space-between; align-items: center; min-height: 120px; margin-bottom: 20px;">
+            <div>
+                <div class="stat-label">Total Projects in Study</div>
+                <div class="stat-number">{total_projects} Projects</div>
+            </div>
+            <div style="background: #000000; border: 1px solid #FFFFFF; padding: 12px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown(f"""
-        <div class="glass-card border-left-green">
-            <div class="stat-label">ENROLLED SUBJECTS</div>
-            <div class="stat-number">{total_subjects:,} Patients</div>
+        <div class="glass-card border-left-green" style="display: flex; justify-content: space-between; align-items: center; min-height: 120px; margin-bottom: 20px;">
+            <div>
+                <div class="stat-label">Enrolled Subjects</div>
+                <div class="stat-number">{total_subjects:,} Patients</div>
+            </div>
+            <div style="background: #000000; border: 1px solid #FFFFFF; padding: 12px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     with col3:
         st.markdown(f"""
-        <div class="glass-card border-left-orange">
-            <div class="stat-label">COLLECTED BIOLOGICAL SAMPLES</div>
-            <div class="stat-number">{total_samples:,} Samples</div>
+        <div class="glass-card border-left-orange" style="display: flex; justify-content: space-between; align-items: center; min-height: 120px; margin-bottom: 20px;">
+            <div>
+                <div class="stat-label">Collected Biological Samples</div>
+                <div class="stat-number">{total_samples:,} Samples</div>
+            </div>
+            <div style="background: #000000; border: 1px solid #FFFFFF; padding: 12px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 2v7.31L3.75 20a1 1 0 0 0 .85 1.5h14.8a1 1 0 0 0 .85-1.5L14 9.3V2h-4z"/>
+                    <path d="M8.5 2h7"/>
+                </svg>
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -177,15 +393,33 @@ with tab_overview:
         col_c1, col_c2 = st.columns(2)
         with col_c1:
             fig_ind = px.pie(
-                df_meta, names="condition", hole=0.4,
-                title="Cohort Indication Split",
-                color_discrete_sequence=px.colors.qualitative.Pastel
+                df_meta, names="condition", hole=0.45,
+                color_discrete_sequence=["#FFFFFF"]
             )
+            apply_bw_theme(fig_ind)
             fig_ind.update_layout(
-                template="plotly_dark",
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=10, r=10, t=40, b=10)
+                margin=dict(l=15, r=15, t=50, b=30),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.2,
+                    xanchor="center",
+                    x=0.5
+                ),
+                title=dict(
+                    text="<b>Cohort Indication Split</b>",
+                    font=dict(size=16, family="Inter", color="#FFFFFF"),
+                    x=0.5,
+                    xanchor='center'
+                )
+            )
+            fig_ind.update_traces(
+                textposition='inside',
+                textinfo='percent+label',
+                marker=dict(
+                    pattern=dict(shape=['', '/', '.'], fgcolor='#FFFFFF', bgcolor='#1A1A1A', solidity=0.25),
+                    line=dict(color='#1A1A1A', width=2)
+                )
             )
             st.plotly_chart(fig_ind, use_container_width=True)
             
@@ -195,15 +429,33 @@ with tab_overview:
             df_resp_agg["response"] = df_resp_agg["response"].fillna("Healthy Control")
             
             fig_resp = px.pie(
-                df_resp_agg, values="count", names="response", hole=0.4,
-                title="Response Demographics Split",
-                color_discrete_sequence=px.colors.qualitative.Safe
+                df_resp_agg, values="count", names="response", hole=0.45,
+                color_discrete_sequence=["#FFFFFF"]
             )
+            apply_bw_theme(fig_resp)
             fig_resp.update_layout(
-                template="plotly_dark",
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=10, r=10, t=40, b=10)
+                margin=dict(l=15, r=15, t=50, b=30),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.2,
+                    xanchor="center",
+                    x=0.5
+                ),
+                title=dict(
+                    text="<b>Response Demographics Split</b>",
+                    font=dict(size=16, family="Inter", color="#FFFFFF"),
+                    x=0.5,
+                    xanchor='center'
+                )
+            )
+            fig_resp.update_traces(
+                textposition='inside',
+                textinfo='percent+label',
+                marker=dict(
+                    pattern=dict(shape=['', '/', 'x'], fgcolor='#FFFFFF', bgcolor='#1A1A1A', solidity=0.25),
+                    line=dict(color='#1A1A1A', width=2)
+                )
             )
             st.plotly_chart(fig_resp, use_container_width=True)
             
@@ -320,9 +572,10 @@ with tab_part3:
         
     st.markdown(f"Analyzed Cohort Size: **{len(df_stat)}** samples &nbsp;|&nbsp; Responders (**yes**): **{len(df_stat[df_stat['response']=='yes'])}** &nbsp;|&nbsp; Non-Responders (**no**): **{len(df_stat[df_stat['response']=='no'])}**")
     
-    # Plot Interactive Plotly Boxplots in Columns
+    # Plot Interactive Plotly Boxplots in Columns (3 + 2 balanced grid layout)
     st.markdown("### Interactive Frequencies Comparison")
-    cols_box = st.columns(5)
+    row1_cols = st.columns(3)
+    row2_cols = st.columns([0.5, 1, 1, 0.5])  # Centered columns of equal width to row 1 (1/3 each)
     
     stat_rows = []
     
@@ -350,26 +603,47 @@ with tab_part3:
         # Create Plotly Boxplot
         fig_box = px.box(
             df_stat, x="response", y=pct_col, color="response",
-            color_discrete_map={"yes": "#A855F7", "no": "#F97316"},
-            labels={"response": "Responder", pct_col: "Frequency (%)"},
+            color_discrete_map={"yes": "#FFFFFF", "no": "#1A1A1A"}, # Solid white vs card gray
+            labels={"response": "Responder Status", pct_col: "Frequency (%)"},
             points="outliers"
         )
         
-        # Style Chart for dark glassmorphic look
+        apply_bw_theme(fig_box)
         fig_box.update_layout(
-            template="plotly_dark",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=10, r=10, t=40, b=10),
+            margin=dict(l=15, r=15, t=55, b=20),
             showlegend=False,
             title=dict(
-                text=f"<b>{pop.replace('_', ' ').title()}</b>",
-                font=dict(size=14, family="Outfit")
+                text=f"<b>{pop.replace('_', ' ').title()} Frequencies</b>",
+                font=dict(size=14, family="Inter", color="#FFFFFF"),
+                x=0.5,
+                xanchor='center'
             ),
-            xaxis=dict(title="Responder"),
-            yaxis=dict(title="Freq (%)")
+            xaxis=dict(
+                title="Clinical Response Status",
+                categoryorder="array",
+                categoryarray=["no", "yes"],
+                ticktext=["Non-Responder (No)", "Responder (Yes)"],
+                tickvals=["no", "yes"],
+                tickfont=dict(size=11, family="Space Mono", color="#A0A0A0")
+            ),
+            yaxis=dict(
+                title="Frequency (%)", 
+                tickfont=dict(size=11, family="Space Mono", color="#A0A0A0")
+            ),
+            hovermode="x unified"
         )
-        cols_box[i].plotly_chart(fig_box, use_container_width=True)
+        # Apply clean borders and lines
+        fig_box.update_traces(
+            line=dict(color='#FFFFFF', width=1),
+            marker=dict(line=dict(color='#FFFFFF', width=1))
+        )
+        
+        # Deploy boxplot into the centered 3 + 2 grid structure
+        if i < 3:
+            row1_cols[i].plotly_chart(fig_box, use_container_width=True)
+        else:
+            # We place the last 2 charts in middle columns (indices 1 and 2)
+            row2_cols[i - 2].plotly_chart(fig_box, use_container_width=True)
         
     # Display statistics table
     st.markdown("### Statistical Significance metrics")
@@ -397,16 +671,17 @@ with tab_part4:
     st.markdown("## Part 4: Dynamic Cohort Explorer")
     st.write("Explore specific subsets of the clinical trial database interactively. Preloaded with Bob's baseline melanoma query.")
     
-    # Interactive Sidebar Filters inside the tab layout
-    col_f1, col_f2, col_f3, col_f4 = st.columns(4)
-    with col_f1:
-        sel_cond = st.selectbox("Filter Condition / Indication", ["melanoma", "carcinoma", "healthy"], index=0, key="t4_cond")
-    with col_f2:
-        sel_type = st.selectbox("Filter Sample Type", ["PBMC", "WB"], index=0, key="t4_type")
-    with col_f3:
-        sel_time = st.selectbox("Filter Time From Treatment Start", [0, 7, 14], index=0, key="t4_time")
-    with col_f4:
-        sel_tx = st.selectbox("Filter Treatment", ["miraclib", "phauximab", "none"], index=0, key="t4_tx")
+    # Interactive Sidebar Filters wrapped inside a clean bordered container
+    with st.container(border=True):
+        col_f1, col_f2, col_f3, col_f4 = st.columns(4)
+        with col_f1:
+            sel_cond = st.selectbox("Filter Condition / Indication", ["melanoma", "carcinoma", "healthy"], index=0, key="t4_cond")
+        with col_f2:
+            sel_type = st.selectbox("Filter Sample Type", ["PBMC", "WB"], index=0, key="t4_type")
+        with col_f3:
+            sel_time = st.selectbox("Filter Time From Treatment Start", [0, 7, 14], index=0, key="t4_time")
+        with col_f4:
+            sel_tx = st.selectbox("Filter Treatment", ["miraclib", "phauximab", "none"], index=0, key="t4_tx")
 
     # Dynamic Cohort SQL query builder
     query_cohort = f"""
@@ -435,16 +710,29 @@ with tab_part4:
             
             fig_p = px.bar(
                 df_p, x="Project ID", y="Sample Count",
-                color="Project ID", color_discrete_sequence=px.colors.qualitative.Bold,
+                color="Project ID", color_discrete_sequence=["#FFFFFF"],
                 text="Sample Count"
             )
+            apply_bw_theme(fig_p)
             fig_p.update_layout(
-                template="plotly_dark",
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=10, r=10, t=30, b=10),
+                margin=dict(l=15, r=15, t=30, b=15),
                 showlegend=False
             )
+            fig_p.update_traces(
+                textposition='outside',
+                cliponaxis=False,
+                opacity=1.0
+            )
+            # Apply dynamic pattern fills for each trace to ensure unique monochrome textures
+            patterns_p = ['', '/', '.']
+            for idx, trace in enumerate(fig_p.data):
+                trace.marker.pattern = dict(
+                    shape=patterns_p[idx % len(patterns_p)],
+                    fgcolor='#FFFFFF',
+                    bgcolor='#1A1A1A',
+                    solidity=0.25
+                )
+                trace.marker.line = dict(color='#FFFFFF', width=1)
             st.plotly_chart(fig_p, use_container_width=True)
             
         with col_res2:
@@ -455,16 +743,29 @@ with tab_part4:
             
             fig_r = px.bar(
                 df_r, x="Responder Status", y="Subject Count",
-                color="Responder Status", color_discrete_sequence=px.colors.qualitative.Set2,
+                color="Responder Status", color_discrete_sequence=["#FFFFFF"],
                 text="Subject Count"
             )
+            apply_bw_theme(fig_r)
             fig_r.update_layout(
-                template="plotly_dark",
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=10, r=10, t=30, b=10),
+                margin=dict(l=15, r=15, t=30, b=15),
                 showlegend=False
             )
+            fig_r.update_traces(
+                textposition='outside',
+                cliponaxis=False,
+                opacity=1.0
+            )
+            # Apply dynamic pattern fills for each trace to ensure unique monochrome textures
+            patterns_r = ['', '/', 'x']
+            for idx, trace in enumerate(fig_r.data):
+                trace.marker.pattern = dict(
+                    shape=patterns_r[idx % len(patterns_r)],
+                    fgcolor='#FFFFFF',
+                    bgcolor='#1A1A1A',
+                    solidity=0.25
+                )
+                trace.marker.line = dict(color='#FFFFFF', width=1)
             st.plotly_chart(fig_r, use_container_width=True)
             
         with col_res3:
@@ -474,16 +775,29 @@ with tab_part4:
             
             fig_s = px.bar(
                 df_s, x="Sex", y="Subject Count",
-                color="Sex", color_discrete_sequence=px.colors.qualitative.Pastel1,
+                color="Sex", color_discrete_sequence=["#FFFFFF"],
                 text="Subject Count"
             )
+            apply_bw_theme(fig_s)
             fig_s.update_layout(
-                template="plotly_dark",
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=10, r=10, t=30, b=10),
+                margin=dict(l=15, r=15, t=30, b=15),
                 showlegend=False
             )
+            fig_s.update_traces(
+                textposition='outside',
+                cliponaxis=False,
+                opacity=1.0
+            )
+            # Apply dynamic pattern fills for each trace to ensure unique monochrome textures
+            patterns_s = ['', '/']
+            for idx, trace in enumerate(fig_s.data):
+                trace.marker.pattern = dict(
+                    shape=patterns_s[idx % len(patterns_s)],
+                    fgcolor='#FFFFFF',
+                    bgcolor='#1A1A1A',
+                    solidity=0.25
+                )
+                trace.marker.line = dict(color='#FFFFFF', width=1)
             st.plotly_chart(fig_s, use_container_width=True)
             
         st.divider()
