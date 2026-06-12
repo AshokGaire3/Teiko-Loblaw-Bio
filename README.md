@@ -22,15 +22,15 @@ All workflows are automated via the root `Makefile`. Run the following three com
    ```bash
    make setup
    ```
-   This command creates a local Python virtual environment (`.venv`) and installs the required libraries (pandas, numpy, scipy, matplotlib, seaborn, streamlit) listed in [requirements.txt](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/requirements.txt).
+   This command creates a local Python virtual environment (`.venv`) and installs the required libraries (pandas, numpy, scipy, matplotlib, seaborn, streamlit) listed in [requirements.txt](./requirements.txt).
 
 2. **Execute Data Pipeline**:
    ```bash
    make pipeline
    ```
    This sequentially executes the entire data pipeline without manual intervention. It triggers:
-   - [load_data.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/load_data.py): Initializes the SQLite database and loads `cell-count.csv`.
-   - [run_analysis.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/run_analysis.py): Performs cell frequency calculations, statistical significance testing, and cohort querying, exporting output tables, plots, and reports to the `output/` folder.
+   - [load_data.py](./load_data.py): Initializes the SQLite database and loads `cell-count.csv`.
+   - [run_analysis.py](./run_analysis.py): Performs cell frequency calculations, statistical significance testing, and cohort querying, exporting output tables, plots, and reports to the `output/` folder.
 
  3. **Run Pipeline Verification (Tests)**:
     ```bash
@@ -52,12 +52,12 @@ All workflows are automated via the root `Makefile`. Run the following three com
 
 The repository is structured as a modular data analysis pipeline:
 
-- [load_data.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/load_data.py): Dedicated data ingestion script. Implemented using standard libraries to ensure zero external dependencies and fast bulk transactions.
-- [run_analysis.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/run_analysis.py): Orchestrates the scientific and statistical analysis. Queries the SQLite database and writes tables, reports, and plots.
-- [verify_outputs.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/verify_outputs.py): Automated test suite checking table row counts, csv shapes, reports existence, boxplots drawing, and average calculations.
-- [app.py](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/app.py): The interactive Streamlit dashboard. Delivers a highly polished, responsive dark-themed visual experience.
-- [requirements.txt](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/requirements.txt): Declares Python package dependencies.
-- [Makefile](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/Makefile): Automated script defining pipeline and server triggers for grading validation.
+- [load_data.py](./load_data.py): Dedicated data ingestion script. Implemented using standard libraries to ensure zero external dependencies and fast bulk transactions.
+- [run_analysis.py](./run_analysis.py): Orchestrates the scientific and statistical analysis. Queries the SQLite database and writes tables, reports, and plots.
+- [verify_outputs.py](./verify_outputs.py): Automated test suite checking table row counts, csv shapes, reports existence, boxplots drawing, and average calculations.
+- [app.py](./app.py): The interactive Streamlit dashboard. Delivers a highly polished, responsive dark-themed visual experience.
+- [requirements.txt](./requirements.txt): Declares Python package dependencies.
+- [Makefile](./Makefile): Automated script defining pipeline and server triggers for grading validation.
 - `output/`: Folder containing generated reports, CSV exports, and figures.
 
 ---
@@ -131,21 +131,22 @@ erDiagram
 ## Scientific Findings Summary
 
 ### Part 2: Initial Analysis
-Relative frequencies (percentages) are calculated by dividing each cell count by the sum of B-cells, CD8+ T-cells, CD4+ T-cells, NK cells, and monocytes for that sample. The results are fully cataloged in [output/initial_analysis_summary.csv](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/output/initial_analysis_summary.csv).
+Relative frequencies (percentages) are calculated by dividing each cell count by the sum of B-cells, CD8+ T-cells, CD4+ T-cells, NK cells, and monocytes for that sample. The results are fully cataloged in [output/initial_analysis_summary.csv](./output/initial_analysis_summary.csv).
 
 ### Part 3: Statistical Analysis
 Comparing responder vs. non-responder relative cell frequencies in melanoma patients treated with miraclib (PBMC samples):
 - **All Timepoints Included**: **CD4+ T-cells** show a statistically significant difference (Welch's t-test $p = 0.0050$, Mann-Whitney U test $p = 0.0133$). Responders exhibit higher proportions of CD4+ T-helper cells (mean **30.538%** vs. **29.902%**). No other cell populations show significant differences.
 - **Baseline (t=0) Only**: **No populations** display statistically significant differences (all $p > 0.20$), indicating that therapeutic response emerges dynamically during treatment rather than being present at baseline.
-- Full details are in [output/statistical_analysis_report.md](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/output/statistical_analysis_report.md) and visual boxplots are saved in [output/responders_vs_nonresponders_boxplots.png](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/output/responders_vs_nonresponders_boxplots.png).
+- Full details are in [output/statistical_analysis_report.md](./output/statistical_analysis_report.md) and visual boxplots are saved in [output/responders_vs_nonresponders_boxplots.png](./output/responders_vs_nonresponders_boxplots.png).
 
 ### Part 4: Cohort Exploration (Melanoma Baseline)
-Within Melanoma PBMC samples receiving miraclib at $t=0$:
-- **Cohort Count**: 656 samples / subjects.
+Within Melanoma samples at baseline ($t=0$):
+- **Cohort Count**: For PBMC receiving miraclib, there are 656 samples / subjects.
 - **Project Counts**: Project `prj1` (384), Project `prj3` (272).
 - **Subject Responder Counts**: Non-responders `no` (325), Responders `yes` (331).
 - **Subject Gender Counts**: Males `M` (344), Females `F` (312).
-- **B-cell Count for Male Responders at Baseline**:
-  - **Case A** (Receiving Miraclib): **10,401.28** cells.
-  - **Case B** (Across All Treatments/Controls): **10,206.72** cells.
-- Full details are in [output/subset_analysis_report.md](file:///Users/ashokgaire/Desktop/Projects03/TeikoTechical/output/subset_analysis_report.md).
+- **Average B-cell Count for Male Responders at Baseline ($t=0$)**:
+  - **Strictly Miraclib + PBMC**: **10,401.28** cells.
+  - **All Treatments + PBMC**: **10,206.72** cells.
+  - **All Treatments + All Sample Types (PBMC & WB)**: **10,206.15** cells (Exact answer if filtering is not assumed).
+- Full details are in [output/subset_analysis_report.md](./output/subset_analysis_report.md).
