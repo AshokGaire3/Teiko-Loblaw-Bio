@@ -2,5 +2,4 @@
 __pycache__/
 *.pyc
 teiko_clinical.db
-cell-count.csv
 output/
