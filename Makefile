@@ -7,7 +7,7 @@ VENV_DIR = .venv
 PYTHON = $(VENV_DIR)/bin/python
 STREAMLIT = $(VENV_DIR)/bin/streamlit
 
-.PHONY: setup pipeline dashboard clean
+.PHONY: setup pipeline dashboard clean test
 
 setup:
 	@echo "Using Python interpreter: $(PYTHON_SYSTEM)"
@@ -21,7 +21,12 @@ pipeline:
 	mkdir -p output
 	$(PYTHON) load_data.py
 	$(PYTHON) run_analysis.py
+	$(PYTHON) verify_outputs.py
 	@echo "Pipeline execution finished. Output tables and plots generated in output/ directory."
+
+test:
+	@echo "Running pipeline verification checks..."
+	$(PYTHON) verify_outputs.py
 
 dashboard:
 	@echo "Starting the Streamlit interactive dashboard..."
