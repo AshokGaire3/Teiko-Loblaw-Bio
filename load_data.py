@@ -8,6 +8,12 @@ CSV_PATH = "cell-count.csv"
 
 def init_db():
     print(f"Initializing SQLite database at: {DB_PATH}")
+    if os.path.exists(DB_PATH):
+        try:
+            os.remove(DB_PATH)
+            print("Removed existing database file to ensure fresh loading.")
+        except Exception as e:
+            print(f"Warning: Could not remove existing database file: {e}")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
