@@ -37,35 +37,26 @@ def get_conn():
     return sqlite3.connect(DB_PATH)
 
 # ── Plotly theme ─────────────────────────────────────────────────────────────
-BG   = "#0F1117"
-SURF = "#161B27"
-BDR  = "#232C3D"
-BDR2 = "#2D3A50"
-T1   = "#E2E8F0"   # primary text
-T2   = "#8892A4"   # muted text
-T3   = "#4A5568"   # dim text
-ACC  = "#4F83CC"   # single accent — steel blue, used sparingly
+BG   = "var(--background-color)"
+SURF = "var(--secondary-background-color)"
+BDR  = "rgba(128, 128, 128, 0.2)"
+BDR2 = "rgba(128, 128, 128, 0.3)"
+T1   = "var(--text-color)"
+T2   = "rgba(128, 128, 128, 0.9)"
+T3   = "rgba(128, 128, 128, 0.7)"
+ACC  = "var(--primary-color)"
 RESP = "#6B93BE"   # responder — clear medium blue
 NRSP = "#A07060"   # non-responder — muted terracotta (warm vs cool, clearly distinct)
 
 def plot_theme(fig, h=310):
     fig.update_layout(
-        template="plotly_dark",
-        paper_bgcolor=SURF,
-        plot_bgcolor=SURF,
-        font=dict(family="Inter", color=T2, size=12),
+        font=dict(family="Inter", size=12),
         height=h,
         margin=dict(l=10, r=10, t=42, b=10),
-        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=T1, size=11)),
+        legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
-    fig.update_xaxes(
-        gridcolor=BDR, linecolor=BDR2, zeroline=False,
-        tickfont=dict(color=T2, size=11), title_font=dict(color=T1, size=12),
-    )
-    fig.update_yaxes(
-        gridcolor=BDR, linecolor=BDR2, zeroline=False,
-        tickfont=dict(color=T2, size=11), title_font=dict(color=T1, size=12),
-    )
+    fig.update_xaxes(zeroline=False)
+    fig.update_yaxes(zeroline=False)
 
 # ── CSS ──────────────────────────────────────────────────────────────────────
 st.markdown(f"""
@@ -107,7 +98,17 @@ button[kind="header"][data-testid="baseButton-header"] {{
 /* Full-width main content */
 section[data-testid="stMainBlockContainer"] {{
     max-width: 100% !important;
-    padding: 1rem 2.5rem !important;
+    padding: 0 2.5rem 1rem 2.5rem !important;
+}}
+.block-container {{
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}}
+div[data-testid="stAppViewBlockContainer"] {{
+    padding-top: 0 !important;
+}}
+header[data-testid="stHeader"] {{
+    display: none !important;
 }}
 
 /* Scrollbar */
@@ -220,7 +221,7 @@ button[data-baseweb="tab"][aria-selected="true"] {{
 .page-header h1 {{
     font-size: 22px !important;
     font-weight: 600 !important;
-    color: {T1} !important;
+    color: var(--text-color) !important;
     margin: 0 !important;
 }}
 .page-header p {{
@@ -265,17 +266,26 @@ div[data-baseweb="select"]:focus-within > div {{
     border-color: {ACC} !important;
     box-shadow: none !important;
 }}
-div[data-testid="stTextInput"] input {{
+div[data-testid="stTextInput"] div[data-baseweb="input"] {{
     background: {SURF} !important;
     border: 1px solid {BDR2} !important;
     border-radius: 6px !important;
+}}
+div[data-testid="stTextInput"] div[data-baseweb="input"]:focus-within {{
+    border-color: {ACC} !important;
+}}
+div[data-testid="stTextInput"] input {{
+    background: transparent !important;
     color: {T1} !important;
     padding: 8px 12px !important;
 }}
-div[data-testid="stTextInput"] input:focus {{
-    border-color: {ACC} !important;
-    box-shadow: none !important;
-    outline: none !important;
+div[data-testid="stTextInput"] input::placeholder {{
+    color: {T2} !important;
+    opacity: 0.6 !important;
+}}
+div[data-testid="stTextInput"] svg {{
+    fill: {T1} !important;
+    color: {T1} !important;
 }}
 div[data-testid="stRadio"] label {{ color: {T2} !important; font-size: 13px !important; }}
 div[data-testid="stRadio"] label:hover {{ color: {T1} !important; }}
@@ -331,8 +341,8 @@ hr {{ border-color: {BDR} !important; }}
 # ── Page header ──────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="page-header">
-  <h1>🧬 Loblaw Bio — Clinical Trial Analytics <span class="accent-tag">LIVE</span></h1>
-  <p>Immune cell population analysis · Drug candidate <strong style="color:{T1}">miraclib</strong></p>
+  <h1>🧬 Loblaw Bio — Clinical Trial Analytics</h1>
+  <p>Immune cell population analysis · Multiple drug candidates</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -415,32 +425,32 @@ with tab1:
         SLICE_COLORS = ["#4A5568", "#64748B", "#8892A4"]
 
         with cc1:
-            fig = px.pie(df_meta, names="condition", hole=0.48,
-                         color_discrete_sequence=SLICE_COLORS)
+            fig = px.pie(df_meta, names="condition", hole=0.48)
             plot_theme(fig, h=260)
             fig.update_layout(
-                title=dict(text="Indication", font=dict(size=12, color=T1), x=0.5, xanchor="center"),
-                legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center", font=dict(size=11, color=T2)),
+                title=dict(text="Indication", font=dict(size=12), x=0.5, xanchor="center"),
+                legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center", font=dict(size=11)),
                 showlegend=True,
             )
-            fig.update_traces(textinfo="percent", textfont=dict(color=T1, size=11),
-                              marker=dict(line=dict(color=BG, width=2)))
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_traces(textinfo="percent", textfont=dict(size=11),
+                              marker=dict(line=dict(width=2)))
+            with st.container(border=True):
+                st.plotly_chart(fig, use_container_width=True)
 
         with cc2:
             df_r = df_meta["response"].value_counts().reset_index()
             df_r.columns = ["response", "count"]
             df_r["response"] = df_r["response"].fillna("Healthy")
-            fig2 = px.pie(df_r, values="count", names="response", hole=0.48,
-                          color_discrete_sequence=SLICE_COLORS)
+            fig2 = px.pie(df_r, values="count", names="response", hole=0.48)
             plot_theme(fig2, h=260)
             fig2.update_layout(
-                title=dict(text="Response Status", font=dict(size=12, color=T1), x=0.5, xanchor="center"),
-                legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center", font=dict(size=11, color=T2)),
+                title=dict(text="Response Status", font=dict(size=12), x=0.5, xanchor="center"),
+                legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center", font=dict(size=11)),
             )
-            fig2.update_traces(textinfo="percent", textfont=dict(color=T1, size=11),
-                               marker=dict(line=dict(color=BG, width=2)))
-            st.plotly_chart(fig2, use_container_width=True)
+            fig2.update_traces(textinfo="percent", textfont=dict(size=11),
+                               marker=dict(line=dict(width=2)))
+            with st.container(border=True):
+                st.plotly_chart(fig2, use_container_width=True)
 
     with col_r:
         st.markdown(f'<div class="section-label">Treatment Arms</div>', unsafe_allow_html=True)
@@ -589,7 +599,7 @@ with tab3:
             showlegend=False,
             title=dict(
                 text=f"{title_text}   <span style='font-size:11px;color:{T3};'>{p_annot}</span>",
-                font=dict(size=13, color=T1), x=0.5, xanchor="center",
+                font=dict(size=13), x=0.5, xanchor="center",
             ),
             xaxis=dict(
                 categoryorder="array", categoryarray=["no", "yes"],
@@ -599,9 +609,11 @@ with tab3:
         fig.update_traces(line_width=1.2, marker=dict(size=3, opacity=0.5), boxmean=True)
 
         if i < 3:
-            row1[i].plotly_chart(fig, use_container_width=True)
+            with row1[i].container(border=True):
+                st.plotly_chart(fig, use_container_width=True)
         else:
-            row2[i - 3].plotly_chart(fig, use_container_width=True)
+            with row2[i - 3].container(border=True):
+                st.plotly_chart(fig, use_container_width=True)
 
     st.markdown(f'<div class="section-label" style="margin-top:8px;">Statistical Results</div>', unsafe_allow_html=True)
     st.dataframe(pd.DataFrame(stat_rows), use_container_width=True, hide_index=True)
@@ -669,38 +681,38 @@ with tab4:
             st.markdown(f'<div style="font-size:12px;color:{T2};margin-bottom:6px;font-weight:500;">Samples per Project</div>', unsafe_allow_html=True)
             df_p = df_c["project_id"].value_counts().reset_index()
             df_p.columns = ["Project", "Samples"]
-            fig_p = px.bar(df_p, x="Project", y="Samples", text="Samples",
-                           color_discrete_sequence=[BDR2])
+            fig_p = px.bar(df_p, x="Project", y="Samples", text="Samples")
             plot_theme(fig_p, h=270)
             fig_p.update_layout(showlegend=False)
             fig_p.update_traces(textposition="outside", cliponaxis=False,
-                                marker_line_width=0, textfont=dict(color=T1, size=12))
-            st.plotly_chart(fig_p, use_container_width=True)
+                                marker_line_width=0, textfont=dict(size=12))
+            with st.container(border=True):
+                st.plotly_chart(fig_p, use_container_width=True)
 
         with cr2:
             st.markdown(f'<div style="font-size:12px;color:{T2};margin-bottom:6px;font-weight:500;">Response Status</div>', unsafe_allow_html=True)
             df_r = df_c["response"].value_counts().reset_index()
             df_r.columns = ["Response", "Count"]
             df_r["Response"] = df_r["Response"].fillna("Healthy")
-            fig_r = px.bar(df_r, x="Response", y="Count", text="Count",
-                           color_discrete_sequence=[BDR2])
+            fig_r = px.bar(df_r, x="Response", y="Count", text="Count")
             plot_theme(fig_r, h=270)
             fig_r.update_layout(showlegend=False)
             fig_r.update_traces(textposition="outside", cliponaxis=False,
-                                marker_line_width=0, textfont=dict(color=T1, size=12))
-            st.plotly_chart(fig_r, use_container_width=True)
+                                marker_line_width=0, textfont=dict(size=12))
+            with st.container(border=True):
+                st.plotly_chart(fig_r, use_container_width=True)
 
         with cr3:
             st.markdown(f'<div style="font-size:12px;color:{T2};margin-bottom:6px;font-weight:500;">Sex Distribution</div>', unsafe_allow_html=True)
             df_s = df_c["sex"].value_counts().reset_index()
             df_s.columns = ["Sex", "Count"]
-            fig_s = px.bar(df_s, x="Sex", y="Count", text="Count",
-                           color_discrete_sequence=[BDR2])
+            fig_s = px.bar(df_s, x="Sex", y="Count", text="Count")
             plot_theme(fig_s, h=270)
             fig_s.update_layout(showlegend=False)
             fig_s.update_traces(textposition="outside", cliponaxis=False,
-                                marker_line_width=0, textfont=dict(color=T1, size=12))
-            st.plotly_chart(fig_s, use_container_width=True)
+                                marker_line_width=0, textfont=dict(size=12))
+            with st.container(border=True):
+                st.plotly_chart(fig_s, use_container_width=True)
 
         st.divider()
 
